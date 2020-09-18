@@ -159,11 +159,19 @@
     <value>PackageVersion string specified '{0}' is invalid.</value>
     <comment>{0} is the version.</comment>
   </data>
+  <data name="InvalidPlatformVersion" xml:space="preserve">
+    <value>Platform version is missing from '{0}'</value>
+    <comment>{0} is the target framework string.</comment>
+  </data>
   <data name="InvalidTargetFramework" xml:space="preserve">
     <value>Invalid target framework for the file '{0}'.</value>
   </data>
   <data name="IsPackableFalseError" xml:space="preserve">
     <value>This project cannot be packaged because packaging has been disabled. Add &lt;IsPackable&gt;true&lt;/IsPackable&gt; to the project file to enable producing a package from this project.</value>
+  </data>
+  <data name="MissingRequiredDot" xml:space="preserve">
+    <value>Dots in TargetFramework versions are required. The missing dot in '{0}' might cause future breakage.</value>
+    <comment>{0} is the target framework string.</comment>
   </data>
   <data name="NoPackItemProvided" xml:space="preserve">
     <value>No project was provided to the PackTask.</value>

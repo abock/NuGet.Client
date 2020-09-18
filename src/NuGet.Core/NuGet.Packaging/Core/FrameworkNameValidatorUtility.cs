@@ -34,6 +34,49 @@ namespace NuGet.Packaging.Rules
             return fx != null && fx.Framework != NuGetFramework.UnsupportedFramework.Framework;
         }
 
+        internal static bool IsDottedFrameworkVersion(string path)
+        {
+            foreach (string knownFolder in PackagingConstants.Folders.Known)
+            {
+                string folderPrefix = knownFolder + System.IO.Path.DirectorySeparatorChar;
+                if (path.Length > folderPrefix.Length &&
+                    path.StartsWith(folderPrefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    string frameworkPart = path.Substring(folderPrefix.Length);
+
+                    try
+                    {
+                        string effectivePath = null;
+                        NuGetFramework fw = FrameworkNameUtility.ParseNuGetFrameworkFolderName(
+                            frameworkPart,
+                            strictParsing: knownFolder == PackagingConstants.Folders.Lib,
+                            effectivePath: out effectivePath);
+
+                        var isNet5EraTfm = fw.Version.Major >= 5 && StringComparer.OrdinalIgnoreCase.Equals(FrameworkConstants.FrameworkIdentifiers.NetCoreApp, fw.Framework);
+
+                        if (isNet5EraTfm)
+                        {
+                            var dotIdx = frameworkPart.IndexOf('.');
+                            var dashIdx = frameworkPart.IndexOf('-');
+                            var isDottedFwVersion = (dashIdx > -1 && dotIdx > -1 && dotIdx < dashIdx) || (dashIdx == -1 && dotIdx > -1);
+                            return !isDottedFwVersion;
+                        }
+                        else
+                        {
+                            return true;
+                        }
+                    }
+                    catch (ArgumentException)
+                    {
+                        // if the parsing fails, we treat it as if this file
+                        // doesn't have target framework.
+                        return false;
+                    }
+                }
+            }
+            return false;
+        }
+
         internal static bool IsValidCultureName(PackageArchiveReader builder, string name)
         {
             // starting from NuGet 1.8, we support localized packages, which

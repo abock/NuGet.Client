@@ -196,6 +196,15 @@ namespace NuGet.Packaging.Rules {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The folder &apos;{0}&apos; under &apos;lib&apos; should include dots in its version number(s). This is required as of .NET 5.0. Please rename it to include the dots as needed (&apos;net50&apos; to &apos;net5.0&apos;)..
+        /// </summary>
+        public static string InvalidUndottedFrameworkWarning {
+            get {
+                return ResourceManager.GetString("InvalidUndottedFrameworkWarning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The package version &apos;{0}&apos; uses SemVer 2.0.0 or components of SemVer 1.0.0 that are not supported on legacy clients. Change the package version to a SemVer 1.0.0 string. If the version contains a release label it must start with a letter. This message can be ignored if the package is not intended for older clients..
         /// </summary>
         public static string LegacyVersionWarning {

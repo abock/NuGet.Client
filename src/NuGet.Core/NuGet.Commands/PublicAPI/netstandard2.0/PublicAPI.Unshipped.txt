@@ -1,3 +1,5 @@
 NuGet.Commands.VerifyArgs.PackagePaths.get -> System.Collections.Generic.IReadOnlyList<string>
 NuGet.Commands.VerifyArgs.PackagePaths.set -> void
+NuGet.Commands.PackArgs.AssetsFile.get -> NuGet.ProjectModel.LockFile
+NuGet.Commands.PackArgs.AssetsFile.set -> void
 static NuGet.Commands.MSBuildProjectFrameworkUtility.GetProjectFramework(string projectFilePath, string targetFrameworkMoniker, string targetPlatformMoniker, string targetPlatformMinVersion) -> NuGet.Frameworks.NuGetFramework

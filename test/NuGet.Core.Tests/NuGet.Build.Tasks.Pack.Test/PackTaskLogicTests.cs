@@ -9,6 +9,7 @@ using System.Reflection;
 using NuGet.Commands;
 using NuGet.Frameworks;
 using NuGet.Packaging;
+using NuGet.Packaging.Core;
 using NuGet.Test.Utility;
 using Xunit;
 
@@ -61,6 +62,190 @@ namespace NuGet.Build.Tasks.Pack.Test
                     Assert.NotNull(centralTransitiveDependentPackage);
                     Assert.Equal(new List<string> { "Analyzers", "Build", "Runtime" }, centralTransitiveDependentPackage.Exclude);
                 }
+            }
+        }
+
+        [Fact]
+        public void PackTaskLogic_ProducesPackageUsingNuspec()
+        {
+            // Arrange
+            using (var testDir = TestDirectory.Create())
+            {
+                // Arrange
+                string nuspec = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<package >
+  <metadata>
+    <id>bar</id>
+    <version>0.0.0</version>
+    <title>bartitle</title>
+    <authors>kat</authors>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <license type=""expression"">MIT</license>
+    <description>desc</description>
+    <releaseNotes>release notes</releaseNotes>
+    <copyright>msft</copyright>
+    <tags>foo bar</tags>
+    <dependencies>
+        <group targetFramework=""net5.0-windows7.0"">
+            <dependency id=""Newtonsoft.Json"" version=""12.0.3""/>
+        </group>
+        <group targetFramework=""net5.0"">
+            <dependency id=""Newtonsoft.Json"" version=""12.0.1""/>
+        </group>
+    </dependencies>
+  </metadata>
+</package>";
+                string nuspecPath = Path.Combine(testDir, ".nuspec");
+                File.WriteAllText(nuspecPath, nuspec);
+
+                var tc = new TestContext(testDir);
+                tc.Request.NuspecFile = nuspecPath;
+                tc.Request.NuspecBasePath = testDir;
+
+                var net50DllDir = Path.Combine(testDir, "lib", "net5.0");
+                var net50DllPath = Path.Combine(net50DllDir, "a.dll");
+
+                Directory.CreateDirectory(net50DllDir);
+                File.WriteAllBytes(net50DllPath, new byte[0]);
+
+                var net50WinDllDir = Path.Combine(testDir, "lib", "net5.0-windows7.0");
+                var net50WinDllPath = Path.Combine(net50WinDllDir, "a.dll");
+
+                Directory.CreateDirectory(net50WinDllDir);
+                File.WriteAllBytes(net50WinDllPath, new byte[0]);
+
+                // Act
+                tc.BuildPackage();
+
+                // Assert
+                string nupkgPath = Path.Combine(testDir, "bar.0.0.0.nupkg");
+                Assert.True(File.Exists(nupkgPath), "The output .nupkg file is not in the expected place.");
+                using (var nupkgReader = new PackageArchiveReader(nupkgPath))
+                {
+                    var nuspecReader = nupkgReader.NuspecReader;
+
+                    // Validate the .nuspec.
+                    Assert.Equal("bar", nuspecReader.GetId());
+                    Assert.Equal("0.0.0", nuspecReader.GetVersion().ToFullString());
+                    Assert.Equal("kat", nuspecReader.GetAuthors());
+                    Assert.Equal("", nuspecReader.GetOwners());
+                    Assert.Equal("desc", nuspecReader.GetDescription());
+                    Assert.True(nuspecReader.GetRequireLicenseAcceptance());
+
+                    // Validate the assets.
+                    var libItems = nupkgReader.GetLibItems().ToList();
+                    Assert.Equal(2, libItems.Count);
+                    Assert.Equal(FrameworkConstants.CommonFrameworks.Net50, libItems[0].TargetFramework);
+                    Assert.Equal(new[] { "lib/net5.0/a.dll" }, libItems[0].Items);
+                    Assert.Equal(NuGetFramework.Parse("net5.0-windows7.0"), libItems[1].TargetFramework);
+                    Assert.Equal(new[] { "lib/net5.0-windows7.0/a.dll" }, libItems[1].Items);
+
+                    var dependencyGroups = nuspecReader.GetDependencyGroups().ToList();
+                    var dependencyGroup = dependencyGroups.First();
+                    var dependencyGroupFramework = dependencyGroup.TargetFramework.Framework;
+                    var dependentPackages = dependencyGroup.Packages.ToList();
+                    var centralTransitiveDependentPackage = dependentPackages
+                        .Where(p => p.Id.Equals("Newtonsoft.Json", StringComparison.OrdinalIgnoreCase))
+                        .FirstOrDefault();
+                    Assert.Equal(2, dependencyGroups.Count);
+                    Assert.Equal(".NETCoreApp", dependencyGroupFramework);
+                }
+            }
+        }
+
+        [Fact]
+        public void PackTaskLogic_ErrorsOnBadFrameworkPlatform()
+        {
+            // Arrange
+            using (var testDir = TestDirectory.Create())
+            {
+                var tc = new TestContext(testDir, "net5.0-windows");
+
+                // Act & Assert
+                Assert.Throws<PackagingException>(() => tc.BuildPackage());
+            }
+        }
+
+        [Fact]
+        public void PackTaskLogic_ErrorsOnBadFrameworkPlatformUsingNuspec()
+        {
+            // Arrange
+            using (var testDir = TestDirectory.Create())
+            {
+                // Arrange
+                string nuspec = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<package >
+  <metadata>
+    <id>bar</id>
+    <version>0.0.0</version>
+    <title>bartitle</title>
+    <authors>kat</authors>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <license type=""expression"">MIT</license>
+    <description>desc</description>
+    <releaseNotes>release notes</releaseNotes>
+    <copyright>msft</copyright>
+    <tags>foo bar</tags>
+    <dependencies>
+        <group targetFramework=""net5.0-windows"">
+            <dependency id=""Newtonsoft.Json"" version=""12.0.3""/>
+        </group>
+    </dependencies>
+  </metadata>
+</package>";
+                string nuspecPath = Path.Combine(testDir, ".nuspec");
+                File.WriteAllText(nuspecPath, nuspec);
+
+                var tc = new TestContext(testDir);
+                tc.Request.NuspecFile = nuspecPath;
+                tc.Request.NuspecBasePath = testDir;
+
+                var net50WinDllDir = Path.Combine(testDir, "lib", "net5.0-windows");
+                var net50WinDllPath = Path.Combine(net50WinDllDir, "a.dll");
+
+                Directory.CreateDirectory(net50WinDllDir);
+                File.WriteAllBytes(net50WinDllPath, new byte[0]);
+
+                // Act & Assert
+                Assert.Throws<PackagingException>(() => tc.BuildPackage());
+            }
+        }
+
+        [Fact]
+        public void PackTaskLogic_WarnsMissingDot()
+        {
+            // Arrange
+            using (var testDir = TestDirectory.Create())
+            {
+                var tc = new TestContext(testDir, "net50");
+
+                // Act
+                tc.BuildPackage();
+
+                // Assert
+                var logger = (TestLogger)tc.Request.Logger;
+                var messages = logger.WarningMessages.ToArray();
+                Assert.True(messages[0].Contains("net50"));
+                Assert.True(messages[0].Contains("missing dot"));
+            }
+        }
+
+        [Fact]
+        public void PackTaskLogic_WhenDotInPlatformOnly_WarnsMissingDot()
+        {
+            // Arrange
+            using (var testDir = TestDirectory.Create())
+            {
+                var tc = new TestContext(testDir, "net50-windows7.0");
+
+                // Act
+                tc.BuildPackage();
+
+                // Assert
+                var logger = (TestLogger)tc.Request.Logger;
+                var messages = logger.WarningMessages.ToArray();
+                Assert.True(messages[0].Contains("net50-windows7.0"));
+                Assert.True(messages[0].Contains("missing dot"));
             }
         }
 
@@ -625,11 +810,16 @@ namespace NuGet.Build.Tasks.Pack.Test
 
         private class TestContext
         {
-            public TestContext(TestDirectory testDir)
+            public TestContext(TestDirectory testdir)
+                : this(testdir, "net45")
+            {
+            }
+
+            public TestContext(TestDirectory testDir, string tfm)
             {
                 var fullPath = Path.Combine(testDir, "project.csproj");
                 var rootDir = Path.GetPathRoot(testDir);
-                var dllDir = Path.Combine(testDir, "bin", "Debug", "net45");
+                var dllDir = Path.Combine(testDir, "bin", "Debug", tfm);
                 var dllPath = Path.Combine(dllDir, "a.dll");
 
                 Directory.CreateDirectory(dllDir);
@@ -664,11 +854,11 @@ namespace NuGet.Build.Tasks.Pack.Test
                     IncludeBuildOutput = true,
                     RestoreOutputPath = Path.Combine(testDir, "obj"),
                     ContinuePackingAfterGeneratingNuspec = true,
-                    TargetFrameworks = new[] { "net45" },
+                    TargetFrameworks = new[] { tfm },
                     BuildOutputInPackage = new[] { new MSBuildItem(dllPath, new Dictionary<string, string>
                     {
                         {"FinalOutputPath", dllPath },
-                        {"TargetFramework", "net45" }
+                        {"TargetFramework", tfm }
                     })},
                     Logger = new TestLogger(),
                     SymbolPackageFormat = "symbols.nupkg",

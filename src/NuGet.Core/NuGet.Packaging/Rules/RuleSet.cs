@@ -11,6 +11,7 @@ namespace NuGet.Packaging.Rules
         private static readonly ReadOnlyCollection<IPackageRule> _packageCreationRules = new ReadOnlyCollection<IPackageRule>(
             new IPackageRule[] {
                 new InvalidFrameworkFolderRule(AnalysisResources.InvalidFrameworkWarning),
+                new InvalidUndottedFrameworkRule(AnalysisResources.InvalidUndottedFrameworkWarning),
                 new MisplacedAssemblyUnderLibRule(AnalysisResources.AssemblyDirectlyUnderLibWarning),
                 new MisplacedAssemblyOutsideLibRule(AnalysisResources.AssemblyOutsideLibWarning),
                 new MisplacedScriptFileRule(AnalysisResources.ScriptOutsideToolsWarning),

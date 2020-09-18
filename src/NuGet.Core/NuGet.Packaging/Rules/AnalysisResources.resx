@@ -169,6 +169,9 @@
   <data name="InvalidPrereleaseDependencyWarning" xml:space="preserve">
     <value>A stable release of a package should not have a prerelease dependency. Either modify the version spec of dependency "{0}" or update the version field in the nuspec.</value>
   </data>
+  <data name="InvalidUndottedFrameworkWarning" xml:space="preserve">
+    <value>The folder '{0}' under 'lib' should include dots in its version number(s). This is required as of .NET 5.0. Please rename it to include the dots as needed ('net50' to 'net5.0').</value>
+  </data>
   <data name="LegacyVersionWarning" xml:space="preserve">
     <value>The package version '{0}' uses SemVer 2.0.0 or components of SemVer 1.0.0 that are not supported on legacy clients. Change the package version to a SemVer 1.0.0 string. If the version contains a release label it must start with a letter. This message can be ignored if the package is not intended for older clients.</value>
   </data>
