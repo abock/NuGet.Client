@@ -73,7 +73,7 @@ namespace NuGet.PackageManagement.VisualStudio
                 var item = await GetProjectItemAsync(envDTEProject, path);
                 return item != null;
             }
-            var vsProject = (IVsProject)envDTEProject.ToVsHierarchy();
+            var vsProject = (IVsProject)EnvDteProjectExtensions.ToVsHierarchy(envDTEProject);
             if (vsProject == null)
             {
                 return false;
@@ -204,7 +204,7 @@ namespace NuGet.PackageManagement.VisualStudio
             // Execute command to include the existing folder into project. Must do this on UI thread.
             await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            var projectHierarchy = (IVsUIHierarchy)envDTEProject.ToVsHierarchy();
+            var projectHierarchy = (IVsUIHierarchy)EnvDteProjectExtensions.ToVsHierarchy(envDTEProject);
 
             uint itemId;
             var hr = projectHierarchy.ParseCanonicalName(folderRelativePath, out itemId);
@@ -398,7 +398,7 @@ namespace NuGet.PackageManagement.VisualStudio
 
             Debug.Assert(envDTEProject != null);
 
-            var hierarchy = envDTEProject.ToVsHierarchy();
+            var hierarchy = EnvDteProjectExtensions.ToVsHierarchy(envDTEProject);
 
             return VsHierarchyUtility.IsProjectCapabilityCompliant(hierarchy);
         }
@@ -724,7 +724,7 @@ namespace NuGet.PackageManagement.VisualStudio
         /// </summary>
         public static bool HasUnsupportedProjectCapability(EnvDTE.Project envDTEProject)
         {
-            var hier = envDTEProject.ToVsHierarchy();
+            var hier = EnvDteProjectExtensions.ToVsHierarchy(envDTEProject);
 
             return VsHierarchyUtility.HasUnsupportedProjectCapability(hier);
         }

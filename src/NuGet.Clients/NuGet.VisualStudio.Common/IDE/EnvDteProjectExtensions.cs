@@ -11,7 +11,7 @@ namespace NuGet.VisualStudio
 {
     public static class EnvDteProjectExtensions
     {
-        public static IVsHierarchy ToVsHierarchy(this EnvDTE.Project project)
+        public static IVsHierarchy ToVsHierarchy(EnvDTE.Project project)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
@@ -29,7 +29,7 @@ namespace NuGet.VisualStudio
             return hierarchy;
         }
 
-        public static string[] GetProjectTypeGuids(this EnvDTE.Project project)
+        public static string[] GetProjectTypeGuids(EnvDTE.Project project)
         {
             Verify.ArgumentIsNotNull(project, nameof(project));
 

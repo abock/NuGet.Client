@@ -69,7 +69,7 @@ namespace NuGet.VisualStudio
                 {
                     await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-                    var vsHierarchy = project.ToVsHierarchy();
+                    var vsHierarchy = EnvDteProjectExtensions.ToVsHierarchy(project);
                     if (vsHierarchy != null &&
                         VsHierarchyUtility.IsCPSCapabilityComplaint(vsHierarchy))
                     {

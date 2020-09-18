@@ -94,7 +94,7 @@ namespace NuGet.PackageManagement.VisualStudio
 
         private static bool IsProjectPackageReferenceCompatible(Project project)
         {
-            var projectGuids = project.GetProjectTypeGuids();
+            var projectGuids = EnvDteProjectExtensions.GetProjectTypeGuids(project);
 
             if (projectGuids.Any(t => UnupgradeableProjectTypes.Contains(t)))
             {

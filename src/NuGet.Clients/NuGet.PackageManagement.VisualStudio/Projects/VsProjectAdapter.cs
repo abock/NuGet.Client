@@ -245,7 +245,7 @@ namespace NuGet.PackageManagement.VisualStudio
         {
             if (!IsDeferred)
             {
-                return Project.GetProjectTypeGuids();
+                return EnvDteProjectExtensions.GetProjectTypeGuids(Project);
             }
             else
             {

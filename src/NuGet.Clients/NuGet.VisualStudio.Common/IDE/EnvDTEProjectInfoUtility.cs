@@ -428,7 +428,7 @@ namespace NuGet.VisualStudio
         private static bool IsWebProject(EnvDTE.Project envDTEProject)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            string[] types = envDTEProject.GetProjectTypeGuids();
+            string[] types = EnvDteProjectExtensions.GetProjectTypeGuids(envDTEProject);
             return types.Contains(VsProjectTypes.WebSiteProjectTypeGuid, StringComparer.OrdinalIgnoreCase) ||
                    types.Contains(VsProjectTypes.WebApplicationProjectTypeGuid, StringComparer.OrdinalIgnoreCase);
         }
@@ -443,7 +443,7 @@ namespace NuGet.VisualStudio
         public static bool IsWindowsStoreApp(EnvDTE.Project envDTEProject)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            string[] types = envDTEProject.GetProjectTypeGuids();
+            string[] types = EnvDteProjectExtensions.GetProjectTypeGuids(envDTEProject);
             return types.Contains(VsProjectTypes.WindowsStoreProjectTypeGuid, StringComparer.OrdinalIgnoreCase);
         }
 

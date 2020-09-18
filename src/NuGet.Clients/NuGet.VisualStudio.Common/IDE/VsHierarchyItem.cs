@@ -36,7 +36,7 @@ namespace NuGet.VisualStudio
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             Assumes.Present(project);
-            return new VsHierarchyItem(project.ToVsHierarchy());
+            return new VsHierarchyItem(EnvDteProjectExtensions.ToVsHierarchy(project));
         }
 
         public static VsHierarchyItem FromVsHierarchy(IVsHierarchy project)
