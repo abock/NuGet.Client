@@ -52,12 +52,14 @@ namespace NuGet.Packaging.Rules
                             strictParsing: knownFolder == PackagingConstants.Folders.Lib,
                             effectivePath: out effectivePath);
 
+                        string targetFrameworkString = Path.GetDirectoryName(path).Split(Path.DirectorySeparatorChar).First();
+
                         var isNet5EraTfm = fw.Version.Major >= 5 && StringComparer.OrdinalIgnoreCase.Equals(FrameworkConstants.FrameworkIdentifiers.NetCoreApp, fw.Framework);
 
                         if (isNet5EraTfm)
                         {
-                            var dotIdx = frameworkPart.IndexOf('.');
-                            var dashIdx = frameworkPart.IndexOf('-');
+                            var dotIdx = targetFrameworkString.IndexOf('.');
+                            var dashIdx = targetFrameworkString.IndexOf('-');
                             var isDottedFwVersion = (dashIdx > -1 && dotIdx > -1 && dotIdx < dashIdx) || (dashIdx == -1 && dotIdx > -1);
                             return isDottedFwVersion;
                         }

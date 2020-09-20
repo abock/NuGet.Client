@@ -250,6 +250,108 @@ namespace NuGet.Build.Tasks.Pack.Test
         }
 
         [Fact]
+        public void PackTaskLogic_WarnsMissingDot_UsingNuspec()
+        {
+            // Arrange
+            using (var testDir = TestDirectory.Create())
+            {
+                // Arrange
+                string nuspec = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<package >
+  <metadata>
+    <id>bar</id>
+    <version>0.0.0</version>
+    <title>bartitle</title>
+    <authors>kat</authors>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <license type=""expression"">MIT</license>
+    <description>desc</description>
+    <releaseNotes>release notes</releaseNotes>
+    <copyright>msft</copyright>
+    <tags>foo bar</tags>
+    <dependencies>
+        <group targetFramework=""net50"">
+            <dependency id=""Newtonsoft.Json"" version=""12.0.3""/>
+        </group>
+    </dependencies>
+  </metadata>
+</package>";
+                string nuspecPath = Path.Combine(testDir, "bar.nuspec");
+                File.WriteAllText(nuspecPath, nuspec);
+
+                var tc = new TestContext(testDir);
+                tc.Request.NuspecFile = nuspecPath;
+                tc.Request.NuspecBasePath = testDir;
+
+                var net50WinDllDir = Path.Combine(testDir, "lib", "net50");
+                var net50WinDllPath = Path.Combine(net50WinDllDir, "a.dll");
+
+                Directory.CreateDirectory(net50WinDllDir);
+                File.WriteAllBytes(net50WinDllPath, new byte[0]);
+
+                // Act
+                tc.BuildPackage();
+
+                // Assert
+                var logger = (TestLogger)tc.Request.Logger;
+                var messages = logger.WarningMessages.ToArray();
+                Assert.True(messages[0].Contains("net50"));
+                Assert.True(messages[0].Contains("include dots"));
+            }
+        }
+
+        [Fact]
+        public void PackTaskLogic_WhenDotInPlatformOnly_WarnsMissingDot_UsingNuspec()
+        {
+            // Arrange
+            using (var testDir = TestDirectory.Create())
+            {
+                // Arrange
+                string nuspec = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<package >
+  <metadata>
+    <id>bar</id>
+    <version>0.0.0</version>
+    <title>bartitle</title>
+    <authors>kat</authors>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <license type=""expression"">MIT</license>
+    <description>desc</description>
+    <releaseNotes>release notes</releaseNotes>
+    <copyright>msft</copyright>
+    <tags>foo bar</tags>
+    <dependencies>
+        <group targetFramework=""net50-windows7.0"">
+            <dependency id=""Newtonsoft.Json"" version=""12.0.3""/>
+        </group>
+    </dependencies>
+  </metadata>
+</package>";
+                string nuspecPath = Path.Combine(testDir, "bar.nuspec");
+                File.WriteAllText(nuspecPath, nuspec);
+
+                var tc = new TestContext(testDir);
+                tc.Request.NuspecFile = nuspecPath;
+                tc.Request.NuspecBasePath = testDir;
+
+                var net50WinDllDir = Path.Combine(testDir, "lib", "net50-windows7.0");
+                var net50WinDllPath = Path.Combine(net50WinDllDir, "a.dll");
+
+                Directory.CreateDirectory(net50WinDllDir);
+                File.WriteAllBytes(net50WinDllPath, new byte[0]);
+
+                // Act
+                tc.BuildPackage();
+
+                // Assert
+                var logger = (TestLogger)tc.Request.Logger;
+                var messages = logger.WarningMessages.ToArray();
+                Assert.True(messages[0].Contains("net50-windows7.0"));
+                Assert.True(messages[0].Contains("include dots"));
+            }
+        }
+
+        [Fact]
         public void PackTaskLogic_SplitsTags()
         {
             // Arrange
