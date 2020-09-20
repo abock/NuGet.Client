@@ -226,7 +226,7 @@ namespace NuGet.Build.Tasks.Pack.Test
                 var logger = (TestLogger)tc.Request.Logger;
                 var messages = logger.WarningMessages.ToArray();
                 Assert.True(messages[0].Contains("net50"));
-                Assert.True(messages[0].Contains("include dots"));
+                Assert.True(messages[0].Contains("missing dot"));
             }
         }
 
@@ -245,7 +245,7 @@ namespace NuGet.Build.Tasks.Pack.Test
                 var logger = (TestLogger)tc.Request.Logger;
                 var messages = logger.WarningMessages.ToArray();
                 Assert.True(messages[0].Contains("net50-windows7.0"));
-                Assert.True(messages[0].Contains("include dots"));
+                Assert.True(messages[0].Contains("missing dot"));
             }
         }
 

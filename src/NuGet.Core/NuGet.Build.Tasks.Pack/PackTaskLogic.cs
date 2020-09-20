@@ -85,8 +85,8 @@ namespace NuGet.Build.Tasks.Pack
                 // This only needs to happen when packing via csproj, not nuspec.
                 packArgs.PackTargetArgs.AllowedOutputExtensionsInPackageBuildOutputFolder = InitOutputExtensions(request.AllowedOutputExtensionsInPackageBuildOutputFolder);
                 packArgs.PackTargetArgs.AllowedOutputExtensionsInSymbolsPackageBuildOutputFolder = InitOutputExtensions(request.AllowedOutputExtensionsInSymbolsPackageBuildOutputFolder);
-                packArgs.PackTargetArgs.TargetPathsToAssemblies = InitLibFiles(request.BuildOutputInPackage);
-                packArgs.PackTargetArgs.TargetPathsToSymbols = InitLibFiles(request.TargetPathsToSymbols);
+                packArgs.PackTargetArgs.TargetPathsToAssemblies = InitLibFiles(request.BuildOutputInPackage, packArgs.Logger);
+                packArgs.PackTargetArgs.TargetPathsToSymbols = InitLibFiles(request.TargetPathsToSymbols, packArgs.Logger);
                 packArgs.PackTargetArgs.AssemblyName = request.AssemblyName;
                 packArgs.PackTargetArgs.IncludeBuildOutput = request.IncludeBuildOutput;
                 packArgs.PackTargetArgs.BuildOutputFolder = request.BuildOutputFolders;
@@ -405,7 +405,7 @@ namespace NuGet.Build.Tasks.Pack
             return runner.RunPackageBuild();
         }
 
-        private IEnumerable<OutputLibFile> InitLibFiles(IMSBuildItem[] libFiles)
+        private IEnumerable<OutputLibFile> InitLibFiles(IMSBuildItem[] libFiles, ILogger logger)
         {
             var assemblies = new List<OutputLibFile>();
             if (libFiles == null)
@@ -438,6 +438,20 @@ namespace NuGet.Build.Tasks.Pack
                 if (targetPath == null)
                 {
                     targetPath = Path.GetFileName(finalOutputPath);
+                }
+
+                NuGetFramework fw = NuGetFramework.Parse(tfm);
+                var isNet5EraTfm = fw.Version.Major >= 5 && StringComparer.OrdinalIgnoreCase.Equals(FrameworkConstants.FrameworkIdentifiers.NetCoreApp, fw.Framework);
+                if (isNet5EraTfm)
+                {
+                    var dotIdx = tfm.IndexOf('.');
+                    var dashIdx = tfm.IndexOf('-');
+                    var isDottedFwVersion = (dashIdx > -1 && dotIdx > -1 && dotIdx < dashIdx) || (dashIdx == -1 && dotIdx > -1);
+                    if (!isDottedFwVersion)
+                    {
+
+                        logger.LogWarning(string.Format(CultureInfo.CurrentCulture, Strings.MissingRequiredDot, tfm));
+                    }
                 }
 
                 assemblies.Add(new OutputLibFile()
