@@ -1,0 +1,3 @@
+NuGet.Packaging.PackageBuilder.Aliases.get -> System.Collections.Generic.IDictionary<string, string>
+NuGet.Packaging.PackageBuilder.Aliases.set -> void
+static NuGet.Packaging.Rules.AnalysisResources.InvalidUndottedFrameworkWarning.get -> string

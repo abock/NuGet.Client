@@ -42,7 +42,7 @@ namespace NuGet.Commands
         public bool Tool { get; set; }
         public string Version { get; set; }
         public bool Deterministic { get; set; }
-        public LockFile AssetsFile { get; set; }
+        public IDictionary<string, string> Aliases { get; set; }
         public WarningProperties WarningProperties { get; set; }
         public MSBuildPackTargetArgs PackTargetArgs { get; set; }
         public Dictionary<string, string> Properties

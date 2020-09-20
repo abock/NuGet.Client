@@ -35,6 +35,8 @@ namespace NuGet.Packaging
         /// </summary>
         public const int MaxIconFileSize = 1024 * 1024;
 
+        public IDictionary<string, string> Aliases { get; set; }
+
         public PackageBuilder(string path, Func<string, string> propertyProvider, bool includeEmptyDirectories)
             : this(path, propertyProvider, includeEmptyDirectories, deterministic: false)
         {
@@ -226,7 +228,7 @@ namespace NuGet.Packaging
         }
 
         /// <summary>
-        /// Exposes the additional properties extracted by the metadata 
+        /// Exposes the additional properties extracted by the metadata
         /// extractor or received from the command line.
         /// </summary>
         public Dictionary<string, string> Properties
@@ -823,7 +825,7 @@ namespace NuGet.Packaging
             Files.AddRange(searchFiles);
         }
 
-        internal static IEnumerable<PhysicalPackageFile> ResolveSearchPattern(string basePath, string searchPath, string targetPath, bool includeEmptyDirectories)
+        internal IEnumerable<PhysicalPackageFile> ResolveSearchPattern(string basePath, string searchPath, string targetPath, bool includeEmptyDirectories)
         {
             string normalizedBasePath;
             IEnumerable<PathResolver.SearchPathResult> searchResults = PathResolver.PerformWildcardSearch(basePath, searchPath, includeEmptyDirectories, out normalizedBasePath);
@@ -847,7 +849,7 @@ namespace NuGet.Packaging
         /// For recursive wildcard paths, we preserve the path portion beginning with the wildcard.
         /// For non-recursive wildcard paths, we use the file name from the actual file path on disk.
         /// </summary>
-        internal static string ResolvePackagePath(string searchDirectory, string searchPattern, string fullPath, string targetPath)
+        internal string ResolvePackagePath(string searchDirectory, string searchPattern, string fullPath, string targetPath)
         {
             string packagePath;
             bool isDirectorySearch = PathResolver.IsDirectoryPath(searchPattern);
@@ -865,13 +867,49 @@ namespace NuGet.Packaging
             {
                 // If the search does not contain wild cards, and the target path shares the same extension, copy it
                 // e.g. <file src="ie\css\style.css" target="Content\css\ie.css" /> --> Content\css\ie.css
-                return targetPath;
+                packagePath = targetPath;
+                targetPath = null;
             }
             else
             {
                 packagePath = Path.GetFileName(fullPath);
             }
-            return Path.Combine(targetPath ?? String.Empty, packagePath);
+
+            string path = Path.Combine(targetPath ?? string.Empty, packagePath);
+
+                // Translate the tfm alias to its actual framework if necessary.
+            foreach (string knownFolder in PackagingConstants.Folders.Known)
+            {
+                string folderPrefix = knownFolder + Path.DirectorySeparatorChar;
+                if (path.Length > folderPrefix.Length &&
+                    path.StartsWith(folderPrefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    string frameworkPart = path.Substring(folderPrefix.Length);
+                    string targetFrameworkString = Path.GetDirectoryName(frameworkPart).Split(Path.DirectorySeparatorChar).First();
+
+                    NuGetFramework fw = null;
+                    string tfm = null;
+
+                    if (Aliases != null && Aliases.TryGetValue(targetFrameworkString, out tfm))
+                    {
+                        path = folderPrefix + tfm + Path.DirectorySeparatorChar + path.Substring(folderPrefix.Length + frameworkPart.Length + 1);
+                        fw = NuGetFramework.Parse(tfm);
+                    }
+                    else
+                    {
+                        fw = NuGetFramework.Parse(targetFrameworkString);
+                    }
+
+                    if (fw.HasPlatform && fw.PlatformVersion == FrameworkConstants.EmptyVersion)
+                    {
+                        throw new PackagingException(NuGetLogCode.NU1012, string.Format(CultureInfo.CurrentCulture, NuGetResources.InvalidPlatformVersion, fw.GetShortFolderName()));
+                    }
+
+                    break;
+                }
+            }
+
+            return path;
         }
 
         /// <summary>

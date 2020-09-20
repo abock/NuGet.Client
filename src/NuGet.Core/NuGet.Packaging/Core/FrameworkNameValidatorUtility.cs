@@ -59,7 +59,7 @@ namespace NuGet.Packaging.Rules
                             var dotIdx = frameworkPart.IndexOf('.');
                             var dashIdx = frameworkPart.IndexOf('-');
                             var isDottedFwVersion = (dashIdx > -1 && dotIdx > -1 && dotIdx < dashIdx) || (dashIdx == -1 && dotIdx > -1);
-                            return !isDottedFwVersion;
+                            return isDottedFwVersion;
                         }
                         else
                         {

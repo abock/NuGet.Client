@@ -57,6 +57,14 @@ namespace NuGet.Build.Tasks.Pack
 
 
             LockFile assetsFile = GetAssetsFile(request);
+            var aliases = new Dictionary<string, string>();
+            foreach (var tfm in assetsFile.PackageSpec.TargetFrameworks)
+            {
+                aliases[tfm.TargetAlias] = tfm.FrameworkName.GetShortFolderName();
+            }
+            packArgs.Aliases = aliases;
+
+
             InitCurrentDirectoryAndFileName(request, packArgs);
             InitNuspecOutputPath(request, packArgs);
             PackCommandRunner.SetupCurrentDirectory(packArgs);
@@ -77,8 +85,8 @@ namespace NuGet.Build.Tasks.Pack
                 // This only needs to happen when packing via csproj, not nuspec.
                 packArgs.PackTargetArgs.AllowedOutputExtensionsInPackageBuildOutputFolder = InitOutputExtensions(request.AllowedOutputExtensionsInPackageBuildOutputFolder);
                 packArgs.PackTargetArgs.AllowedOutputExtensionsInSymbolsPackageBuildOutputFolder = InitOutputExtensions(request.AllowedOutputExtensionsInSymbolsPackageBuildOutputFolder);
-                packArgs.PackTargetArgs.TargetPathsToAssemblies = InitLibFiles(request.BuildOutputInPackage, assetsFile);
-                packArgs.PackTargetArgs.TargetPathsToSymbols = InitLibFiles(request.TargetPathsToSymbols, assetsFile);
+                packArgs.PackTargetArgs.TargetPathsToAssemblies = InitLibFiles(request.BuildOutputInPackage);
+                packArgs.PackTargetArgs.TargetPathsToSymbols = InitLibFiles(request.TargetPathsToSymbols);
                 packArgs.PackTargetArgs.AssemblyName = request.AssemblyName;
                 packArgs.PackTargetArgs.IncludeBuildOutput = request.IncludeBuildOutput;
                 packArgs.PackTargetArgs.BuildOutputFolder = request.BuildOutputFolders;
@@ -397,20 +405,13 @@ namespace NuGet.Build.Tasks.Pack
             return runner.RunPackageBuild();
         }
 
-        private IEnumerable<OutputLibFile> InitLibFiles(IMSBuildItem[] libFiles, LockFile assetsFile)
+        private IEnumerable<OutputLibFile> InitLibFiles(IMSBuildItem[] libFiles)
         {
             var assemblies = new List<OutputLibFile>();
             if (libFiles == null)
             {
                 return assemblies;
             }
-
-            var aliases = new Dictionary<string, NuGetFramework>();
-            foreach (var tfm in assetsFile.PackageSpec.TargetFrameworks)
-            {
-                aliases[tfm.TargetAlias] = tfm.FrameworkName;
-            }
-
 
             foreach (var assembly in libFiles)
             {
@@ -424,7 +425,7 @@ namespace NuGet.Build.Tasks.Pack
                 }
 
                 var targetPath = assembly.GetProperty("TargetPath");
-                var alias = assembly.GetProperty("TargetFramework");
+                var tfm = assembly.GetProperty("TargetFramework");
 
                 if (!File.Exists(finalOutputPath))
                 {
@@ -439,19 +440,12 @@ namespace NuGet.Build.Tasks.Pack
                     targetPath = Path.GetFileName(finalOutputPath);
                 }
 
-                NuGetFramework actualFramework = aliases[alias];
-
-                if (string.IsNullOrEmpty(alias) || actualFramework == null || actualFramework.IsSpecificFramework == false)
-                {
-                    throw new PackagingException(NuGetLogCode.NU5027, string.Format(CultureInfo.CurrentCulture, Strings.InvalidTargetFramework, finalOutputPath));
-                }
-
                 assemblies.Add(new OutputLibFile()
                 {
                     FinalOutputPath = finalOutputPath,
                     TargetPath = targetPath,
-                    TargetFramework = actualFramework.GetShortFolderName()
-                });
+                    TargetFramework = tfm
+            });
             }
 
             return assemblies;

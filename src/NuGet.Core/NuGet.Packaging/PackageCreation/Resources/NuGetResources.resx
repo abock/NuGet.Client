@@ -212,4 +212,8 @@
     <value>The element 'icon' cannot be empty.</value>
     <comment>Please, don't localize icon</comment>
   </data>
+  <data name="InvalidPlatformVersion" xml:space="preserve">
+    <value>Target Framework '{0}' has a platform component, but the platform could not be inferred. This is likely a problem with NuGet itself.</value>
+    <comment>0 - the target platform</comment>
+  </data>
 </root>

@@ -151,6 +151,15 @@ namespace NuGet.Packaging.PackageCreation.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Target Framework &apos;{0}&apos; has a platform component, but the platform could not be inferred. This is likely a problem with NuGet itself..
+        /// </summary>
+        internal static string InvalidPlatformVersion {
+            get {
+                return ResourceManager.GetString("InvalidPlatformVersion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &lt;dependencies&gt; element must not contain both &lt;group&gt; and &lt;dependency&gt; child elements..
         /// </summary>
         internal static string Manifest_DependenciesHasMixedElements {

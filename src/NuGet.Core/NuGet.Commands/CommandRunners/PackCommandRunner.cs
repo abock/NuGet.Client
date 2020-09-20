@@ -319,6 +319,11 @@ namespace NuGet.Commands
                 builder.MinClientVersion = _packArgs.MinClientVersion;
             }
 
+            if (_packArgs.Aliases != null)
+            {
+                builder.Aliases = _packArgs.Aliases;
+            }
+
             CheckForBadFrameworks(builder);
 
             ExcludeFiles(builder.Files);
