@@ -877,7 +877,7 @@ namespace NuGet.Packaging
 
             string path = Path.Combine(targetPath ?? string.Empty, packagePath);
 
-                // Translate the tfm alias to its actual framework if necessary.
+            // Translate the tfm alias to its actual framework if necessary.
             foreach (string knownFolder in PackagingConstants.Folders.Known)
             {
                 string folderPrefix = knownFolder + Path.DirectorySeparatorChar;

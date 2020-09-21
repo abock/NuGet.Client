@@ -459,7 +459,7 @@ namespace NuGet.Build.Tasks.Pack
                     FinalOutputPath = finalOutputPath,
                     TargetPath = targetPath,
                     TargetFramework = tfm
-            });
+                });
             }
 
             return assemblies;
