@@ -80,6 +80,8 @@ namespace NuGet.Commands
             Files.Clear();
             builder.Files.Clear();
 
+            builder.Aliases = PackArgs.Aliases;
+
             AddOutputFiles(builder);
 
             // Add content files if there are any. They could come from a project or nuspec file

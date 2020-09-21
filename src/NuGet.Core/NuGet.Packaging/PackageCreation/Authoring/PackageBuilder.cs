@@ -887,22 +887,16 @@ namespace NuGet.Packaging
                     string frameworkPart = path.Substring(folderPrefix.Length);
                     string targetFrameworkString = Path.GetDirectoryName(frameworkPart).Split(Path.DirectorySeparatorChar).First();
 
-                    NuGetFramework fw = null;
                     string tfm = null;
 
                     if (Aliases != null && Aliases.TryGetValue(targetFrameworkString, out tfm))
                     {
-                        path = folderPrefix + tfm + Path.DirectorySeparatorChar + path.Substring(folderPrefix.Length + frameworkPart.Length + 1);
-                        fw = NuGetFramework.Parse(tfm);
-                    }
-                    else
-                    {
-                        fw = NuGetFramework.Parse(targetFrameworkString);
-                    }
-
-                    if (fw.HasPlatform && fw.PlatformVersion == FrameworkConstants.EmptyVersion)
-                    {
-                        throw new PackagingException(NuGetLogCode.NU1012, string.Format(CultureInfo.CurrentCulture, NuGetResources.InvalidPlatformVersion, fw.GetShortFolderName()));
+                        path = folderPrefix + tfm + Path.DirectorySeparatorChar + path.Substring(folderPrefix.Length + targetFrameworkString.Length + 1);
+                        NuGetFramework fw = NuGetFramework.Parse(tfm);
+                        if (fw.HasPlatform && fw.PlatformVersion == FrameworkConstants.EmptyVersion)
+                        {
+                            throw new PackagingException(NuGetLogCode.NU1012, string.Format(CultureInfo.CurrentCulture, NuGetResources.InvalidPlatformVersion, fw.GetShortFolderName()));
+                        }
                     }
 
                     break;
