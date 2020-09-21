@@ -12,8 +12,6 @@ namespace NuGet.Packaging.Rules
 {
     internal class InvalidUndottedFrameworkRule : IPackageRule
     {
-        private const string LibDirectory = "lib";
-
         public string MessageFormat { get; }
 
         public InvalidUndottedFrameworkRule(string messageFormat)
@@ -24,12 +22,15 @@ namespace NuGet.Packaging.Rules
         public IEnumerable<PackagingLogMessage> Validate(PackageArchiveReader builder)
         {
             var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var file in builder.GetFiles().Select(t => PathUtility.GetPathWithDirectorySeparator(t)))
+            foreach (string knownFolder in PackagingConstants.Folders.Known)
             {
-                var parts = file.Split(Path.DirectorySeparatorChar);
-                if (parts.Length >= 3 && parts[0].Equals(LibDirectory, StringComparison.OrdinalIgnoreCase))
+                foreach (var file in builder.GetFiles().Select(t => PathUtility.GetPathWithDirectorySeparator(t)))
                 {
-                    set.Add(file);
+                    var parts = file.Split(Path.DirectorySeparatorChar);
+                    if (parts.Length >= 3 && parts[0].Equals(knownFolder, StringComparison.OrdinalIgnoreCase))
+                    {
+                        set.Add(file);
+                    }
                 }
             }
 

@@ -80,7 +80,7 @@ namespace NuGet.Commands
             Files.Clear();
             builder.Files.Clear();
 
-            builder.Aliases = PackArgs.Aliases;
+            builder.AliasMappings = PackArgs.AliasMappings;
 
             AddOutputFiles(builder);
 

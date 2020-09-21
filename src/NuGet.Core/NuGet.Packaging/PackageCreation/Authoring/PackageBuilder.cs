@@ -35,7 +35,7 @@ namespace NuGet.Packaging
         /// </summary>
         public const int MaxIconFileSize = 1024 * 1024;
 
-        public IDictionary<string, string> Aliases { get; set; }
+        public IDictionary<string, string> AliasMappings { get; set; }
 
         public PackageBuilder(string path, Func<string, string> propertyProvider, bool includeEmptyDirectories)
             : this(path, propertyProvider, includeEmptyDirectories, deterministic: false)
@@ -889,7 +889,7 @@ namespace NuGet.Packaging
 
                     string tfm = null;
 
-                    if (Aliases != null && Aliases.TryGetValue(targetFrameworkString, out tfm))
+                    if (AliasMappings != null && AliasMappings.TryGetValue(targetFrameworkString, out tfm))
                     {
                         path = folderPrefix + tfm + Path.DirectorySeparatorChar + path.Substring(folderPrefix.Length + targetFrameworkString.Length + 1);
                         NuGetFramework fw = NuGetFramework.Parse(tfm);

@@ -62,7 +62,7 @@ namespace NuGet.Build.Tasks.Pack
             {
                 aliases[tfm.TargetAlias] = tfm.FrameworkName.GetShortFolderName();
             }
-            packArgs.Aliases = aliases;
+            packArgs.AliasMappings = aliases;
 
 
             InitCurrentDirectoryAndFileName(request, packArgs);
@@ -425,7 +425,7 @@ namespace NuGet.Build.Tasks.Pack
                 }
 
                 var targetPath = assembly.GetProperty("TargetPath");
-                var tfm = assembly.GetProperty("TargetFramework");
+                var targetFramework = assembly.GetProperty("TargetFramework");
 
                 if (!File.Exists(finalOutputPath))
                 {
@@ -440,17 +440,21 @@ namespace NuGet.Build.Tasks.Pack
                     targetPath = Path.GetFileName(finalOutputPath);
                 }
 
-                NuGetFramework fw = NuGetFramework.Parse(tfm);
-                var isNet5EraTfm = fw.Version.Major >= 5 && StringComparer.OrdinalIgnoreCase.Equals(FrameworkConstants.FrameworkIdentifiers.NetCoreApp, fw.Framework);
+                if (string.IsNullOrEmpty(targetFramework) || NuGetFramework.Parse(targetFramework).IsSpecificFramework == false)
+                {
+                    throw new PackagingException(NuGetLogCode.NU5027, string.Format(CultureInfo.CurrentCulture, Strings.InvalidTargetFramework, finalOutputPath));
+                }
+
+                NuGetFramework framework = NuGetFramework.Parse(targetFramework);
+                var isNet5EraTfm = framework.Version.Major >= 5 && StringComparer.OrdinalIgnoreCase.Equals(FrameworkConstants.FrameworkIdentifiers.NetCoreApp, framework.Framework);
                 if (isNet5EraTfm)
                 {
-                    var dotIdx = tfm.IndexOf('.');
-                    var dashIdx = tfm.IndexOf('-');
-                    var isDottedFwVersion = (dashIdx > -1 && dotIdx > -1 && dotIdx < dashIdx) || (dashIdx == -1 && dotIdx > -1);
-                    if (!isDottedFwVersion)
+                    var dotIndex = targetFramework.IndexOf('.');
+                    var dashIndex = targetFramework.IndexOf('-');
+                    var frameworkVersionHasDot = (dashIndex > -1 && dotIndex > -1 && dotIndex < dashIndex) || (dashIndex == -1 && dotIndex > -1);
+                    if (!frameworkVersionHasDot)
                     {
-
-                        logger.LogWarning(string.Format(CultureInfo.CurrentCulture, Strings.MissingRequiredDot, tfm));
+                        logger.LogWarning(string.Format(CultureInfo.CurrentCulture, Strings.MissingRequiredDot, targetFramework));
                     }
                 }
 
@@ -458,7 +462,7 @@ namespace NuGet.Build.Tasks.Pack
                 {
                     FinalOutputPath = finalOutputPath,
                     TargetPath = targetPath,
-                    TargetFramework = tfm
+                    TargetFramework = targetFramework
                 });
             }
 

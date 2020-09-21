@@ -170,7 +170,7 @@
     <value>This project cannot be packaged because packaging has been disabled. Add &lt;IsPackable&gt;true&lt;/IsPackable&gt; to the project file to enable producing a package from this project.</value>
   </data>
   <data name="MissingRequiredDot" xml:space="preserve">
-    <value>Dots in TargetFramework versions are required. The missing dot in '{0}' might cause future breakage.</value>
+    <value>Dots in TargetFramework versions are required. The missing dot in '{0}' might cause future problems.</value>
     <comment>{0} is the target framework string.</comment>
   </data>
   <data name="NoPackItemProvided" xml:space="preserve">

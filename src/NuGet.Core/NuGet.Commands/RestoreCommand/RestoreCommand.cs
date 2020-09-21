@@ -408,10 +408,10 @@ namespace NuGet.Commands
 
         private bool HasValidPlatformVersions()
         {
-            IEnumerable<NuGetFramework> badPlatforms = _request.Project.TargetFrameworks.Select(tfm => tfm.FrameworkName).Where(fw => !string.IsNullOrEmpty(fw.Platform) && (fw.PlatformVersion == FrameworkConstants.EmptyVersion));
-            if (badPlatforms.Any())
+            IEnumerable<NuGetFramework> versionlessPlatforms = _request.Project.TargetFrameworks.Select(tfm => tfm.FrameworkName).Where(fw => !string.IsNullOrEmpty(fw.Platform) && (fw.PlatformVersion == FrameworkConstants.EmptyVersion));
+            if (versionlessPlatforms.Any())
             {
-                foreach (NuGetFramework fw in badPlatforms)
+                foreach (NuGetFramework fw in versionlessPlatforms)
                 {
                     _logger.Log(RestoreLogMessage.CreateError(NuGetLogCode.NU1012, string.Format(CultureInfo.CurrentCulture, Strings.Error_PlatformVersionNotPresent, fw.Framework, fw.Platform)));
                 }

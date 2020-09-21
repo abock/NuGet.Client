@@ -95,7 +95,6 @@ namespace NuGet.Commands
 
         private bool BuildPackage(string path)
         {
-            // XXX: This is where they diverge. Where do they converge again?
             string extension = Path.GetExtension(path);
             if (extension.Equals(NuGetConstants.ManifestExtension, StringComparison.OrdinalIgnoreCase))
             {
@@ -319,12 +318,12 @@ namespace NuGet.Commands
                 builder.MinClientVersion = _packArgs.MinClientVersion;
             }
 
-            if (_packArgs.Aliases != null)
+            if (_packArgs.AliasMappings != null)
             {
-                builder.Aliases = _packArgs.Aliases;
+                builder.AliasMappings = _packArgs.AliasMappings;
             }
 
-            CheckForBadFrameworks(builder);
+            CheckForUnsupportedFrameworks(builder);
 
             ExcludeFiles(builder.Files);
         }
@@ -849,7 +848,7 @@ namespace NuGet.Commands
             return successful;
         }
 
-        private void CheckForBadFrameworks(PackageBuilder builder)
+        private void CheckForUnsupportedFrameworks(PackageBuilder builder)
         {
             foreach (FrameworkAssemblyReference reference in builder.FrameworkReferences)
             {

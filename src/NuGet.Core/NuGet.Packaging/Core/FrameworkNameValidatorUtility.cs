@@ -47,21 +47,21 @@ namespace NuGet.Packaging.Rules
                     try
                     {
                         string effectivePath = null;
-                        NuGetFramework fw = FrameworkNameUtility.ParseNuGetFrameworkFolderName(
+                        NuGetFramework framework = FrameworkNameUtility.ParseNuGetFrameworkFolderName(
                             frameworkPart,
                             strictParsing: knownFolder == PackagingConstants.Folders.Lib,
                             effectivePath: out effectivePath);
 
                         string targetFrameworkString = Path.GetDirectoryName(path).Split(Path.DirectorySeparatorChar).ElementAt(1);
 
-                        var isNet5EraTfm = fw.Version.Major >= 5 && StringComparer.OrdinalIgnoreCase.Equals(FrameworkConstants.FrameworkIdentifiers.NetCoreApp, fw.Framework);
+                        var isNet5EraTfm = framework.Version.Major >= 5 && StringComparer.OrdinalIgnoreCase.Equals(FrameworkConstants.FrameworkIdentifiers.NetCoreApp, framework.Framework);
 
                         if (isNet5EraTfm)
                         {
-                            var dotIdx = targetFrameworkString.IndexOf('.');
-                            var dashIdx = targetFrameworkString.IndexOf('-');
-                            var isDottedFwVersion = (dashIdx > -1 && dotIdx > -1 && dotIdx < dashIdx) || (dashIdx == -1 && dotIdx > -1);
-                            return isDottedFwVersion;
+                            var dotIndex = targetFrameworkString.IndexOf('.');
+                            var dashIndex = targetFrameworkString.IndexOf('-');
+                            var frameworkVersionHasDots = (dashIndex > -1 && dotIndex > -1 && dotIndex < dashIndex) || (dashIndex == -1 && dotIndex > -1);
+                            return frameworkVersionHasDots;
                         }
                         else
                         {
