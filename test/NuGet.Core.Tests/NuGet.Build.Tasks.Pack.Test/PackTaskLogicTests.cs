@@ -119,7 +119,6 @@ namespace NuGet.Build.Tasks.Pack.Test
 
                 // Assert
                 string nupkgPath = Path.Combine(testDir, "bar.0.0.0.nupkg");
-                Assert.True(File.Exists(nupkgPath), "The output .nupkg file is not in the expected place.");
                 using (var nupkgReader = new PackageArchiveReader(nupkgPath))
                 {
                     var nuspecReader = nupkgReader.NuspecReader;
@@ -154,20 +153,34 @@ namespace NuGet.Build.Tasks.Pack.Test
         }
 
         [Fact]
-        public void PackTaskLogic_ErrorsOnBadFrameworkPlatform()
+        public void PackTaskLogic_InfersFrameworkPlatformVersionFromAlias()
         {
             // Arrange
             using (var testDir = TestDirectory.Create())
             {
                 var tc = new TestContext(testDir, "net5.0-windows");
 
-                // Act & Assert
-                Assert.Throws<PackagingException>(() => tc.BuildPackage());
+                // TODO: mock a project.assets.json under tc.Request.RestoreOutputPath
+
+                // Act
+                tc.BuildPackage();
+
+                // Assert
+                using (var nupkgReader = new PackageArchiveReader(tc.NupkgPath))
+                {
+                    var nuspecReader = nupkgReader.NuspecReader;
+
+                    // Validate the assets.
+                    var libItems = nupkgReader.GetLibItems().ToList();
+                    Assert.Equal(1, libItems.Count);
+                    Assert.Equal(NuGetFramework.Parse("net5.0-windows7.0"), libItems[0].TargetFramework);
+                    Assert.Equal(new[] { "lib/net5.0-windows7.0/a.dll" }, libItems[0].Items);
+                }
             }
         }
 
         [Fact]
-        public void PackTaskLogic_ErrorsOnBadFrameworkPlatformUsingNuspec()
+        public void PackTaskLogic_InfersFrameworkPlatformVersionFromAlias_UsingNuspec()
         {
             // Arrange
             using (var testDir = TestDirectory.Create())
@@ -206,8 +219,24 @@ namespace NuGet.Build.Tasks.Pack.Test
                 Directory.CreateDirectory(net50WinDllDir);
                 File.WriteAllBytes(net50WinDllPath, new byte[0]);
 
-                // Act & Assert
-                Assert.Throws<PackagingException>(() => tc.BuildPackage());
+                // TODO: mock a project.assets.json under tc.Request.RestoreOutputPath
+
+                // Act
+                tc.BuildPackage();
+
+                // Assert
+                string nupkgPath = Path.Combine(testDir, "bar.0.0.0.nupkg");
+                Assert.True(File.Exists(nupkgPath), "The output .nupkg file is not in the expected place.");
+                using (var nupkgReader = new PackageArchiveReader(nupkgPath))
+                {
+                    var nuspecReader = nupkgReader.NuspecReader;
+
+                    // Validate the assets.
+                    var libItems = nupkgReader.GetLibItems().ToList();
+                    Assert.Equal(1, libItems.Count);
+                    Assert.Equal(NuGetFramework.Parse("net5.0-windows7.0"), libItems[0].TargetFramework);
+                    Assert.Equal(new[] { "lib/net5.0-windows7.0/a.dll" }, libItems[0].Items);
+                }
             }
         }
 
