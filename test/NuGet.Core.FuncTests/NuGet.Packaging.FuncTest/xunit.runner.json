@@ -1,5 +1,4 @@
-{
-  "parallelizeTestCollections": true,
-  "parallelizeAssembly": true,
-  "longRunningTestSeconds": 1200
+﻿{
+  "maxParallelThreads": 1,
+  "parallelizeTestCollections": false
 }
