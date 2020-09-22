@@ -263,6 +263,63 @@ namespace NuGet.Build.Tasks.Pack.Test
         }
 
         [Fact]
+        public void PackTaskLogic_WhenTPVIsMissing_Errors()
+        {
+            // Arrange
+            using (var testDir = TestDirectory.Create())
+            {
+                var tc = new TestContext(testDir, "net5.0-windows");
+
+                // Act & Assert
+                Assert.Throws<PackagingException>(() => tc.BuildPackage());
+            }
+        }
+
+        [Fact]
+        public void PackTaskLogic_WhenTPVIsMissing_Errors_UsingNuspec()
+        {
+            // Arrange
+            using (var testDir = TestDirectory.Create())
+            {
+                string nuspec = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<package >
+  <metadata>
+    <id>bar</id>
+    <version>0.0.0</version>
+    <title>bartitle</title>
+    <authors>kat</authors>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <license type=""expression"">MIT</license>
+    <description>desc</description>
+    <releaseNotes>release notes</releaseNotes>
+    <copyright>msft</copyright>
+    <tags>foo bar</tags>
+    <dependencies>
+        <group targetFramework=""net5.0-windows"">
+            <dependency id=""Newtonsoft.Json"" version=""12.0.3""/>
+        </group>
+    </dependencies>
+  </metadata>
+</package>";
+                string nuspecPath = Path.Combine(testDir, "bar.nuspec");
+                File.WriteAllText(nuspecPath, nuspec);
+
+                var tc = new TestContext(testDir);
+                tc.Request.NuspecFile = nuspecPath;
+                tc.Request.NuspecBasePath = testDir;
+
+                var net50WinDllDir = Path.Combine(testDir, "lib", "net5.0-windows");
+                var net50WinDllPath = Path.Combine(net50WinDllDir, "a.dll");
+
+                Directory.CreateDirectory(net50WinDllDir);
+                File.WriteAllBytes(net50WinDllPath, new byte[0]);
+
+                // Act & Assert
+                Assert.Throws<PackagingException>(() => tc.BuildPackage());
+            }
+        }
+
+        [Fact]
         public void PackTaskLogic_WarnsMissingDot()
         {
             // Arrange

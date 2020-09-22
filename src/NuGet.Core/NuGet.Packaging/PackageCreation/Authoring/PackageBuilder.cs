@@ -885,19 +885,34 @@ namespace NuGet.Packaging
                     path.StartsWith(folderPrefix, StringComparison.OrdinalIgnoreCase))
                 {
                     string frameworkPart = path.Substring(folderPrefix.Length);
-                    string targetFrameworkString = Path.GetDirectoryName(frameworkPart).Split(Path.DirectorySeparatorChar).First();
+                    string aliasString = Path.GetDirectoryName(frameworkPart).Split(Path.DirectorySeparatorChar).First();
 
-                    string tfm = null;
+                    string frameworkString = null;
 
-                    if (AliasMappings != null && AliasMappings.TryGetValue(targetFrameworkString, out tfm))
+                    NuGetFramework framework = null;
+
+                    if (AliasMappings != null && AliasMappings.TryGetValue(aliasString, out frameworkString))
                     {
-                        path = folderPrefix + tfm + Path.DirectorySeparatorChar + path.Substring(folderPrefix.Length + targetFrameworkString.Length + 1);
-                        NuGetFramework fw = NuGetFramework.Parse(tfm);
-                        if (fw.HasPlatform && fw.PlatformVersion == FrameworkConstants.EmptyVersion)
+                        path = folderPrefix + frameworkString + Path.DirectorySeparatorChar + path.Substring(folderPrefix.Length + aliasString.Length + 1);
+                        framework = NuGetFramework.Parse(frameworkString);
+                    }
+                    else
+                    {
+                        try
                         {
-                            throw new PackagingException(NuGetLogCode.NU1012, string.Format(CultureInfo.CurrentCulture, NuGetResources.InvalidPlatformVersion, fw.GetShortFolderName()));
+                            framework = NuGetFramework.Parse(aliasString);
+                        }
+                        catch
+                        {
                         }
                     }
+
+
+                    if (framework != null && framework.HasPlatform && framework.PlatformVersion == FrameworkConstants.EmptyVersion)
+                    {
+                        throw new PackagingException(NuGetLogCode.NU1012, string.Format(CultureInfo.CurrentCulture, NuGetResources.InvalidPlatformVersion, framework.GetShortFolderName()));
+                    }
+
 
                     break;
                 }
