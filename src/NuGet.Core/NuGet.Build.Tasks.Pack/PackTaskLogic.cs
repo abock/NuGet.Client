@@ -62,7 +62,7 @@ namespace NuGet.Build.Tasks.Pack
             {
                 aliases[tfm.TargetAlias] = tfm.FrameworkName.GetShortFolderName();
             }
-            packArgs.AliasMappings = aliases;
+            packArgs.AliasFolderNameMapping = aliases;
 
 
             InitCurrentDirectoryAndFileName(request, packArgs);

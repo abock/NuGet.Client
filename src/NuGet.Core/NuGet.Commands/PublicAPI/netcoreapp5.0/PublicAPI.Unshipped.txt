@@ -1,5 +1,5 @@
 NuGet.Commands.VerifyArgs.PackagePaths.get -> System.Collections.Generic.IReadOnlyList<string>
 NuGet.Commands.VerifyArgs.PackagePaths.set -> void
-NuGet.Commands.PackArgs.AliasMappings.get -> System.Collections.Generic.IDictionary<string, string>
-NuGet.Commands.PackArgs.AliasMappings.set -> void
+NuGet.Commands.PackArgs.AliasFolderNameMapping.get -> System.Collections.Generic.IDictionary<string, string>
+NuGet.Commands.PackArgs.AliasFolderNameMapping.set -> void
 static NuGet.Commands.MSBuildProjectFrameworkUtility.GetProjectFramework(string projectFilePath, string targetFrameworkMoniker, string targetPlatformMoniker, string targetPlatformMinVersion) -> NuGet.Frameworks.NuGetFramework

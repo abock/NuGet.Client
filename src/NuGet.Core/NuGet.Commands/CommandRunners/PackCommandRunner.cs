@@ -318,9 +318,9 @@ namespace NuGet.Commands
                 builder.MinClientVersion = _packArgs.MinClientVersion;
             }
 
-            if (_packArgs.AliasMappings != null)
+            if (_packArgs.AliasFolderNameMapping != null)
             {
-                builder.AliasMappings = _packArgs.AliasMappings;
+                builder.AliasFolderNameMapping = _packArgs.AliasFolderNameMapping;
             }
 
             CheckForUnsupportedFrameworks(builder);
