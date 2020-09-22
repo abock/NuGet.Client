@@ -887,6 +887,11 @@ namespace NuGet.Packaging
                     string frameworkPart = path.Substring(folderPrefix.Length);
                     string aliasString = Path.GetDirectoryName(frameworkPart).Split(Path.DirectorySeparatorChar).First();
 
+                    if (string.IsNullOrEmpty(aliasString))
+                    {
+                        break;
+                    }
+
                     string frameworkString = null;
 
                     NuGetFramework framework = null;

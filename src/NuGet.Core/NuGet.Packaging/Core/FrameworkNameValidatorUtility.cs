@@ -39,6 +39,10 @@ namespace NuGet.Packaging.Rules
             foreach (string knownFolder in PackagingConstants.Folders.Known)
             {
                 string folderPrefix = knownFolder + System.IO.Path.DirectorySeparatorChar;
+                if (knownFolder == "contentFiles")
+                {
+                    folderPrefix += "any" + System.IO.Path.DirectorySeparatorChar;
+                }
                 if (path.Length > folderPrefix.Length &&
                     path.StartsWith(folderPrefix, StringComparison.OrdinalIgnoreCase))
                 {
