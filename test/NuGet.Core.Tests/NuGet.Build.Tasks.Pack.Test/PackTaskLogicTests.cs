@@ -160,7 +160,90 @@ namespace NuGet.Build.Tasks.Pack.Test
             {
                 var tc = new TestContext(testDir, "net5.0-windows");
 
-                // TODO: mock a project.assets.json under tc.Request.RestoreOutputPath
+                var assetsJson = @"{
+                    ""version"": 3,
+  ""targets"": {
+    ""net5.0"": {},
+    ""net5.0-windows7.0"": {}
+  },
+  ""libraries"": {},
+  ""projectFileDependencyGroups"": {
+    ""net5.0"": [],
+    ""net5.0-windows7.0"": []
+  },
+  ""project"": {
+    ""version"": ""0.0.0"",
+    ""restore"": {
+      ""projectName"": ""bar"",
+      ""projectStyle"": ""PackageReference"",
+      ""crossTargeting"": true,
+      ""fallbackFolders"": [
+        ""C:\\Microsoft\\Xamarin\\NuGet\\""
+      ],
+      ""originalTargetFrameworks"": [
+        ""net5.0"",
+        ""net5.0-windows""
+      ],
+      ""sources"": {
+        ""https://api.nuget.org/v3/index.json"": {},
+      },
+      ""frameworks"": {
+        ""net5.0"": {
+          ""targetAlias"": ""net5.0"",
+          ""projectReferences"": {}
+        },
+        ""net5.0-windows7.0"": {
+          ""targetAlias"": ""net5.0-windows"",
+          ""projectReferences"": {}
+        }
+      },
+      ""warningProperties"": {
+        ""warnAsError"": [
+          ""NU1605""
+        ]
+      }
+    },
+    ""frameworks"": {
+      ""net5.0"": {
+        ""targetAlias"": ""net5.0"",
+        ""imports"": [
+          ""net461"",
+          ""net462"",
+          ""net47"",
+          ""net471"",
+          ""net472"",
+          ""net48""
+        ],
+        ""assetTargetFallback"": true,
+        ""warn"": true,
+        ""frameworkReferences"": {
+          ""Microsoft.NETCore.App"": {
+            ""privateAssets"": ""all""
+          }
+        },
+      },
+      ""net5.0-windows7.0"": {
+        ""targetAlias"": ""net5.0-windows"",
+        ""imports"": [
+          ""net461"",
+          ""net462"",
+          ""net47"",
+          ""net471"",
+          ""net472"",
+          ""net48""
+        ],
+        ""assetTargetFallback"": true,
+        ""warn"": true,
+        ""frameworkReferences"": {
+          ""Microsoft.NETCore.App"": {
+            ""privateAssets"": ""all""
+          }
+        },
+      }
+    }
+  }
+                }";
+                File.WriteAllText(Path.Combine(testDir, "obj", "project.assets.json"), assetsJson);
 
                 // Act
                 tc.BuildPackage();
@@ -219,7 +302,90 @@ namespace NuGet.Build.Tasks.Pack.Test
                 Directory.CreateDirectory(net50WinDllDir);
                 File.WriteAllBytes(net50WinDllPath, new byte[0]);
 
-                // TODO: mock a project.assets.json under tc.Request.RestoreOutputPath
+                var assetsJson = @"{
+                    ""version"": 3,
+  ""targets"": {
+    ""net5.0"": {},
+    ""net5.0-windows7.0"": {}
+  },
+  ""libraries"": {},
+  ""projectFileDependencyGroups"": {
+    ""net5.0"": [],
+    ""net5.0-windows7.0"": []
+  },
+  ""project"": {
+    ""version"": ""0.0.0"",
+    ""restore"": {
+      ""projectName"": ""bar"",
+      ""projectStyle"": ""PackageReference"",
+      ""crossTargeting"": true,
+      ""fallbackFolders"": [
+        ""C:\\Microsoft\\Xamarin\\NuGet\\""
+      ],
+      ""originalTargetFrameworks"": [
+        ""net5.0"",
+        ""net5.0-windows""
+      ],
+      ""sources"": {
+        ""https://api.nuget.org/v3/index.json"": {},
+      },
+      ""frameworks"": {
+        ""net5.0"": {
+          ""targetAlias"": ""net5.0"",
+          ""projectReferences"": {}
+        },
+        ""net5.0-windows7.0"": {
+          ""targetAlias"": ""net5.0-windows"",
+          ""projectReferences"": {}
+        }
+      },
+      ""warningProperties"": {
+        ""warnAsError"": [
+          ""NU1605""
+        ]
+      }
+    },
+    ""frameworks"": {
+      ""net5.0"": {
+        ""targetAlias"": ""net5.0"",
+        ""imports"": [
+          ""net461"",
+          ""net462"",
+          ""net47"",
+          ""net471"",
+          ""net472"",
+          ""net48""
+        ],
+        ""assetTargetFallback"": true,
+        ""warn"": true,
+        ""frameworkReferences"": {
+          ""Microsoft.NETCore.App"": {
+            ""privateAssets"": ""all""
+          }
+        },
+      },
+      ""net5.0-windows7.0"": {
+        ""targetAlias"": ""net5.0-windows"",
+        ""imports"": [
+          ""net461"",
+          ""net462"",
+          ""net47"",
+          ""net471"",
+          ""net472"",
+          ""net48""
+        ],
+        ""assetTargetFallback"": true,
+        ""warn"": true,
+        ""frameworkReferences"": {
+          ""Microsoft.NETCore.App"": {
+            ""privateAssets"": ""all""
+          }
+        },
+      }
+    }
+  }
+                }";
+                File.WriteAllText(Path.Combine(testDir, "obj", "project.assets.json"), assetsJson);
 
                 // Act
                 tc.BuildPackage();
