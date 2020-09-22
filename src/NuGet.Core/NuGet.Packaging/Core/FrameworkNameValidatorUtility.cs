@@ -56,6 +56,11 @@ namespace NuGet.Packaging.Rules
                             strictParsing: knownFolder == PackagingConstants.Folders.Lib,
                             effectivePath: out effectivePath);
 
+                        if (framework == null)
+                        {
+                            return true;
+                        }
+
                         string targetFrameworkString = Path.GetDirectoryName(path).Split(Path.DirectorySeparatorChar).ElementAt(1);
 
                         var isNet5EraTfm = framework.Version.Major >= 5 && StringComparer.OrdinalIgnoreCase.Equals(FrameworkConstants.FrameworkIdentifiers.NetCoreApp, framework.Framework);

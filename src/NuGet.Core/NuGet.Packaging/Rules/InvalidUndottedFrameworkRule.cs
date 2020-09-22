@@ -42,7 +42,7 @@ namespace NuGet.Packaging.Rules
         {
             return PackagingLogMessage.CreateWarning(
                 string.Format(CultureInfo.CurrentCulture, MessageFormat, target),
-                NuGetLogCode.NU5132);
+                NuGetLogCode.NU5501);
         }
     }
 }
